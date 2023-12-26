@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers
 {
@@ -19,10 +18,18 @@ namespace BlogApi.Controllers
         [HttpPost]
         public ActionResult<int> PostBlog(BlogPost post) 
         {
+            post.CreationDate = DateTime.Now;
             _context.Posts.Add(post);
             _context.SaveChanges();
             
             return post.BlogPostId;
+        }
+
+        [HttpGet]
+        public List<BlogPost> GetPosts()
+        {
+            List<BlogPost> blogPosts = _context.Posts.ToList();
+            return blogPosts;
         }
     }
 }

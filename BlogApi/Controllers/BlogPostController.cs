@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlogApi;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class BlogPostController
     {
         private readonly ILogger<BlogPostController> _logger;
         private readonly BloggingContext _context;
+
+        int resultsPerPage = 5;
 
         public BlogPostController(ILogger<BlogPostController> logger, BloggingContext context)
         {
@@ -25,11 +28,25 @@ namespace BlogApi.Controllers
             return post.BlogPostId;
         }
 
-        [HttpGet]
-        public List<BlogPost> GetPosts()
+        [HttpGet]        
+        public double GetPageCount()
         {
-            List<BlogPost> blogPosts = _context.Posts.ToList();
-            return blogPosts;
+            return Math.Ceiling(_context.Posts.Count() / (double)resultsPerPage);
+        }
+
+        [HttpGet]
+        public List<BlogPost> GetPostsForPage(int page)
+        {
+            
+
+            int position = 5 * (page - 1);
+
+            var nextPage = _context.Posts
+                .OrderByDescending(b => b.CreationDate)
+                .Skip(position)
+                .Take(resultsPerPage)
+                .ToList();
+            return nextPage;
         }
     }
 }

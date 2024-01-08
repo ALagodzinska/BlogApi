@@ -37,8 +37,6 @@ namespace BlogApi.Controllers
         [HttpGet]
         public List<BlogPost> GetPostsForPage(int page)
         {
-            
-
             int position = 5 * (page - 1);
 
             var nextPage = _context.Posts
@@ -47,6 +45,12 @@ namespace BlogApi.Controllers
                 .Take(resultsPerPage)
                 .ToList();
             return nextPage;
+        }
+
+        [HttpGet]
+        public BlogPost? GetPost(int postId)
+        {
+            return _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
         }
     }
 }

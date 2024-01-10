@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BlogApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate2 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,8 @@ namespace BlogApi.Migrations
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BackgroundImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PreviewImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     User = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

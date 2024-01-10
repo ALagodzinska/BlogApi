@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 
 namespace BlogApi
 {
@@ -14,8 +15,9 @@ namespace BlogApi
         [Required]
         public string? Content { get; set; }
 
-        [Required]
-        public string? Image { get; set; }
+        public byte[]? BackgroundImage { get; set; }
+
+        public byte[]? PreviewImage { get; set; }
 
         [Required]
         public string? User { get; set; }

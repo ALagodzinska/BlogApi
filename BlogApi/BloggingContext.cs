@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BlogApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi
 {

@@ -5,3 +5,7 @@
 		- that is for using migrations commands in Package Manager Console
 	- then run * Add-Migration MigrationName *
 	- after run * Update-Database *
+
+API for more than JSON
+	- is called Web Api 2
+	- uses package using System.Web.Http;

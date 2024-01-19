@@ -1,4 +1,5 @@
 ﻿using BlogApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers
@@ -20,6 +21,7 @@ namespace BlogApi.Controllers
             _context = context;
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult<int> PostBlog(BlogPostInput postInput) 
         {

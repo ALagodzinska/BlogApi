@@ -19,6 +19,7 @@ namespace BlogApi.Controllers
         [Authorize]
         [HttpGet]
         public ActionResult<string> GetUser() {
+            if (User.Identity == null) throw new Exception("No user found!");
             return User.Identity.Name;
         }
     }

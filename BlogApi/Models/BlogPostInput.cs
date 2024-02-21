@@ -17,8 +17,6 @@ namespace BlogApi.Models
             public string? BackgroundImage { get; set; }
 
             public string? PreviewImage { get; set; }
-
-            [Required]
             public string? User { get; set; }
         
     }

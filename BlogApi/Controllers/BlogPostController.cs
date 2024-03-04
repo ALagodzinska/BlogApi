@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers
 {
-    
+
 
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class BlogPostController
+    public class BlogPostController : ControllerBase
     {
         private readonly ILogger<BlogPostController> _logger;
         private readonly BloggingContext _context;
@@ -36,6 +36,24 @@ namespace BlogApi.Controllers
             _context.Posts.Add(post);
             _context.SaveChanges();
             return post.BlogPostId;
+        }
+
+        [Authorize]
+        [HttpPut]
+        public IActionResult UpdatePost(BlogPostInput postInput, int postId)
+        {
+            var entity = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            
+            entity.Content = postInput.Content;
+            entity.Title = postInput.Title;
+
+            _context.SaveChanges();
+            return Ok(postId);
         }
 
         [HttpGet]        

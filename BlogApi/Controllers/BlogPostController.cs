@@ -51,6 +51,14 @@ namespace BlogApi.Controllers
             
             entity.Content = postInput.Content;
             entity.Title = postInput.Title;
+            if (postInput.BackgroundImage != null) 
+            { 
+                entity.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage); 
+            }
+            if (postInput.PreviewImage != null)
+            {
+                entity.PreviewImage = Convert.FromBase64String(postInput.PreviewImage);
+            }
 
             _context.SaveChanges();
             return Ok(postId);

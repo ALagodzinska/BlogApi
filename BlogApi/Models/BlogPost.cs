@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 
 namespace BlogApi.Models
@@ -20,8 +21,7 @@ namespace BlogApi.Models
 
         [Required]
         public byte[]? PreviewImage { get; set; }
-
-        [Required]
-        public string? User { get; set; }
+                
+        public IdentityUser UserIdentity { get; set; }
     }
 }

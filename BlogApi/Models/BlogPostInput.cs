@@ -4,20 +4,17 @@ namespace BlogApi.Models
 {
     public class BlogPostInput
     {
-            public int BlogPostId { get; set; }
+        [Required]
+        public string? Title { get; set; }
 
-            public DateTime CreationDate { get; set; }
+        [Required]
+        public string? Content { get; set; }
 
-            [Required]
-            public string? Title { get; set; }
+        [Required]
+        public string? BackgroundImage { get; set; }
 
-            [Required]
-            public string? Content { get; set; }
+        [Required]
+        public string? PreviewImage { get; set; }
 
-            public string? BackgroundImage { get; set; }
-
-            public string? PreviewImage { get; set; }
-            public string? User { get; set; }
-        
     }
 }

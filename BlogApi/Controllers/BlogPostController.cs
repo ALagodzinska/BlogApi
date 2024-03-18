@@ -107,5 +107,18 @@ namespace BlogApi.Controllers
                 .Select(BlogPostOutput.createBlogPostSelector())
                 .FirstOrDefault();
         }
+
+        [Authorize]
+        [HttpDelete]
+        public int DeletePost(int postId) { 
+            BlogPost? post = _context.Posts
+                .Where(post => post.BlogPostId == postId)
+                .FirstOrDefault();
+            if (post == null) throw new Exception($"Post with id {postId} doesn't exist.");
+
+            _context.Remove(post);
+            _context.SaveChanges();
+            return postId;
+        }
     }
 }

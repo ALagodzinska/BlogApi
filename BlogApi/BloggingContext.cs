@@ -17,6 +17,17 @@ namespace BlogApi
         public DbSet<IdentityUser> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BlogWebsiteDb");
+        => options
+            .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BlogWebsiteDb")
+            .AddInterceptors(new SoftDeleteInterceptor());
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Automatically adding query filter to 
+            // all LINQ queries that use BlogPost
+            modelBuilder.Entity<BlogPost>()
+                .HasQueryFilter(x => x.IsDeleted == false);
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

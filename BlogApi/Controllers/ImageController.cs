@@ -49,7 +49,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult ImageExperementation(int postId)
+        public ActionResult PreviewImageExperementation(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
             if (post == null) 
@@ -63,18 +63,43 @@ namespace BlogApi.Controllers
 
             Image image;
             Bitmap resizedImage;
+            Bitmap croppedImage;
             using (MemoryStream readStream = new(post.PreviewImage))
             {                    
                 image = Image.FromStream(readStream);
-                resizedImage = CropImageFromCenter(image, 150,150);
+
+                // Getting values for ratio resize -> width and height
+                var resizedSize = GetPreviewImageResizeValues(image);
+                // Creating resized image
+                resizedImage = ResizeImage(image, resizedSize.width, resizedSize.height);
+                // Cropping image from center
+                croppedImage = CropImageFromCenter((Image)resizedImage, Constants.PreviewImageWidth, Constants.PreviewImageHeight);
             }
 
             using (MemoryStream writeStream = new())
             {
-                resizedImage.Save(writeStream, ImageFormat.Jpeg);
+                croppedImage.Save(writeStream, ImageFormat.Jpeg);
                 return File(writeStream.ToArray(), "image/jpeg");
             }
-        }        
+        }  
+        
+        private (int height, int width) GetPreviewImageResizeValues(Image image)
+        {
+            int height;
+            int width;
+            if(image.Height > image.Width)
+            {
+                width = Constants.PreviewImageWidth;
+                height = (image.Height * width) /image.Width;
+            }
+            else
+            {
+                height = Constants.PreviewImageHeight;
+                width = (image.Width * height) / image.Height;
+            }
+
+            return (height, width);
+        }
 
         public static Bitmap ResizeImage(Image image, int width, int height)
         {

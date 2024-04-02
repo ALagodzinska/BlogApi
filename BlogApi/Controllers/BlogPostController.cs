@@ -47,6 +47,9 @@ namespace BlogApi.Controllers
             post.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage);
             post.CreationDate = DateTime.Now;
             post.UserIdentity = GetCurrentUser();
+            post.BackgroundImageType = ImageType.JPEG;
+            post.PreviewImageType = ImageType.JPEG;
+
 
             _context.Posts.Add(post);
             _context.SaveChanges();

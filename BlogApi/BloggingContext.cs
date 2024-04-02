@@ -22,12 +22,26 @@ namespace BlogApi
             .AddInterceptors(new SoftDeleteInterceptor());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {            
+            modelBuilder
+             .Entity<BlogPost>()
+             .Property(e => e.PreviewImageType)
+             .HasConversion(
+                 v => v.ToString(),
+                 v => (ImageType)Enum.Parse(typeof(ImageType), v));
+
+            modelBuilder
+             .Entity<BlogPost>()
+             .Property(e => e.BackgroundImageType)
+             .HasConversion(
+                 v => v.ToString(),
+                 v => (ImageType)Enum.Parse(typeof(ImageType), v));
+
             // Automatically adding query filter to 
             // all LINQ queries that use BlogPost
             modelBuilder.Entity<BlogPost>()
                 .HasQueryFilter(x => x.IsDeleted == false);
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);         
         }
     }
 }

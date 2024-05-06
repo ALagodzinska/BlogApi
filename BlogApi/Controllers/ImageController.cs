@@ -27,7 +27,7 @@ namespace BlogApi.Controllers
 
             if (post != null)
             {
-                return File(post.PreviewImage, "image/png");
+                return File(post.PreviewImage, post.PreviewImageType);
             }
             else
             {
@@ -42,7 +42,7 @@ namespace BlogApi.Controllers
 
             if (post != null)
             {
-                return File(post.BackgroundImage, "image/png");
+                return File(post.BackgroundImage, post.BackgroundImageType);
             }
             else
             {
@@ -58,7 +58,7 @@ namespace BlogApi.Controllers
             {
                 throw new Exception(String.Format("No blog post found with id {0}", postId)); 
             }
-            return ImageTransformation(post.PreviewImage, ImageGroup.Preview);
+            return ImageTransformation(post.PreviewImage, ImageGroup.Preview, post.PreviewImageType);
         }
 
         [HttpGet]
@@ -69,10 +69,10 @@ namespace BlogApi.Controllers
             {
                 throw new Exception(String.Format("No blog post found with id {0}", postId));
             }
-            return ImageTransformation(post.BackgroundImage, ImageGroup.Background);
+            return ImageTransformation(post.BackgroundImage, ImageGroup.Background, post.BackgroundImageType);
         }
 
-        private ActionResult ImageTransformation(byte[] imageFromPost, ImageGroup imageGroup)
+        private ActionResult ImageTransformation(byte[] imageFromPost, ImageGroup imageGroup, string imageType)
         {
             if (imageFromPost == null)
             {
@@ -100,8 +100,8 @@ namespace BlogApi.Controllers
 
             using (MemoryStream writeStream = new())
             {
-                croppedImage.Save(writeStream, ImageFormat.Jpeg);
-                return File(writeStream.ToArray(), "image/jpeg");
+                croppedImage.Save(writeStream, ImageFormat.Jpeg);                
+                return File(writeStream.ToArray(), imageType);
             }
         }
         
@@ -143,7 +143,7 @@ namespace BlogApi.Controllers
 
         public static Bitmap ResizeImage(Image image, int width, int height)
         {
-            var destRect = new Rectangle(0, 0, width, height);
+            var destRect = new Rectangle(0, 0, width, height);            
             var destImage = new Bitmap(width, height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);

@@ -6,5 +6,9 @@
         public static int PreviewImageHeight => 300;
         public static int BackgroundImageWidth => 1104;
         public static int BackgroundImageHeight => 250;
+        public enum ImageGroup {
+            Background,
+            Preview
+        }
     }
 }

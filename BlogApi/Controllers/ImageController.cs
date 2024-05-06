@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using static BlogApi.Constants;
 
 namespace BlogApi.Controllers
 {
@@ -49,31 +51,51 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult PreviewImageExperementation(int postId)
+        public ActionResult PreviewImageConversion(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
             if (post == null) 
             {
                 throw new Exception(String.Format("No blog post found with id {0}", postId)); 
             }
-            if (post.PreviewImage == null)
-            {
-                throw new Exception(String.Format("No preview image for post with id {0}", postId));
-            }
+            return ImageTransformation(post.PreviewImage, ImageGroup.Preview);
+        }
 
+        [HttpGet]
+        public ActionResult BackgroundImageConversion(int postId)
+        {
+            var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+            if (post == null)
+            {
+                throw new Exception(String.Format("No blog post found with id {0}", postId));
+            }
+            return ImageTransformation(post.BackgroundImage, ImageGroup.Background);
+        }
+
+        private ActionResult ImageTransformation(byte[] imageFromPost, ImageGroup imageGroup)
+        {
+            if (imageFromPost == null)
+            {
+                throw new Exception(String.Format("No image found"));
+            }
             Image image;
             Bitmap resizedImage;
             Bitmap croppedImage;
-            using (MemoryStream readStream = new(post.PreviewImage))
-            {                    
+            using (MemoryStream readStream = new(imageFromPost))
+            {
                 image = Image.FromStream(readStream);
 
-                // Getting values for ratio resize -> width and height
-                var resizedSize = GetPreviewImageResizeValues(image);
+                // Getting values for ratio resize -> width and height for specific image group
+                (int resizeHeight, int resizeWidth) = imageGroup == ImageGroup.Preview 
+                    ? GetPreviewImageResizeValues(image) : GetBackgroundImageResizeValues(image);
                 // Creating resized image
-                resizedImage = ResizeImage(image, resizedSize.width, resizedSize.height);
+                resizedImage = ResizeImage(image, resizeWidth, resizeHeight);
+                // Image final size by image group type
+                (int finalImageWidth, int finalImageHeight) = imageGroup == ImageGroup.Preview
+                    ? (Constants.PreviewImageWidth, Constants.PreviewImageHeight)
+                    : (Constants.BackgroundImageWidth, Constants.BackgroundImageHeight);
                 // Cropping image from center
-                croppedImage = CropImageFromCenter((Image)resizedImage, Constants.PreviewImageWidth, Constants.PreviewImageHeight);
+                croppedImage = CropImageFromCenter((Image)resizedImage, finalImageWidth, finalImageHeight);
             }
 
             using (MemoryStream writeStream = new())
@@ -81,7 +103,7 @@ namespace BlogApi.Controllers
                 croppedImage.Save(writeStream, ImageFormat.Jpeg);
                 return File(writeStream.ToArray(), "image/jpeg");
             }
-        }  
+        }
         
         private (int height, int width) GetPreviewImageResizeValues(Image image)
         {
@@ -98,6 +120,24 @@ namespace BlogApi.Controllers
                 width = (image.Width * height) / image.Height;
             }
 
+            return (height, width);
+        }
+
+        private (int height, int width) GetBackgroundImageResizeValues(Image image)
+        {
+            int height;
+            int width;
+            if (image.Width > image.Height)
+            {
+                width = Constants.BackgroundImageWidth;
+                height = (image.Height * width) / image.Width;                
+                
+            }
+            else
+            {
+                height = Constants.BackgroundImageHeight;
+                width = (image.Width * height) / image.Height;
+            }
             return (height, width);
         }
 
@@ -133,8 +173,6 @@ namespace BlogApi.Controllers
             int y = (img.Height - height) / 2;
 
             Rectangle cropRect = new Rectangle(x, y, width, height);
-            _logger.LogInformation("Image width {}, Image height {}", img.Width, img.Height);
-            _logger.LogInformation("Width {width}, height {height}, x {x}, y {y}", width, height, x, y);
 
             Bitmap croppedImage = new Bitmap(width, height);
             using (Graphics g = Graphics.FromImage(croppedImage))

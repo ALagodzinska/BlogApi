@@ -2,18 +2,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using System.Text.Json;
+using static BlogApi.Constants;
 
 namespace BlogApi.Controllers
 {
     [ApiController]
+    [ActivatorUtilitiesConstructor]
     [Route("api/[controller]/[action]")]
     public class BlogPostController : ControllerBase
     {
         private readonly ILogger<BlogPostController> _logger;
         private readonly BloggingContext _context;
+        // to get method to resize images
+        private readonly ImageConversion _imageConversion;
 
         private const int ResultsPerPage = 5;
 
@@ -21,6 +23,7 @@ namespace BlogApi.Controllers
         {
             _logger = logger;
             _context = context;
+            _imageConversion = new ImageConversion(logger);
         }
 
         private IdentityUser GetCurrentUser()
@@ -43,8 +46,12 @@ namespace BlogApi.Controllers
             var post = new BlogPost();
             post.Content = postInput.Content;
             post.Title = postInput.Title;
-            post.PreviewImage = Convert.FromBase64String(postInput.PreviewImage);
-            post.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage);
+            // Saving modyfied images
+            post.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageGroup.Preview, postInput.PreviewImageType);
+            post.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageGroup.Background, postInput.BackgroundImageType);
+            // 
+            //post.PreviewImage = Convert.FromBase64String(postInput.PreviewImage);
+            //post.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage);
             post.CreationDate = DateTime.Now;
             post.UserIdentity = GetCurrentUser();
             post.BackgroundImageType = postInput.BackgroundImageType;
@@ -71,11 +78,13 @@ namespace BlogApi.Controllers
             entity.Title = postInput.Title;
             if (postInput.BackgroundImage != null)
             {
-                entity.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage);
+                entity.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageGroup.Background, postInput.BackgroundImageType);
+                entity.BackgroundImageType = postInput.BackgroundImageType;
             }
             if (postInput.PreviewImage != null)
             {
-                entity.PreviewImage = Convert.FromBase64String(postInput.PreviewImage);
+                entity.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageGroup.Preview, postInput.PreviewImageType);
+                entity.PreviewImageType = postInput.PreviewImageType;
             }
 
             _context.SaveChanges();

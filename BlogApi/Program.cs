@@ -1,4 +1,5 @@
 using BlogApi;
+using BlogApi.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
@@ -40,8 +41,10 @@ builder.Services.AddDbContext<BloggingContext>();
 builder.Services.AddIdentityCore<IdentityUser>()
        .AddEntityFrameworkStores<BloggingContext>()
        .AddApiEndpoints();
+
 builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 builder.Services.AddAuthorizationBuilder();
+
 
 
 var app = builder.Build();

@@ -1,9 +1,11 @@
 ﻿using Azure.Identity;
+using BlogApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Text;
 using static BlogApi.Constants;
 
 namespace BlogApi.Controllers
@@ -12,12 +14,12 @@ namespace BlogApi.Controllers
     [ApiController]
     public class ImageController : ControllerBase
     {
-        private readonly ILogger<BlogPostController> _logger;
+        private readonly ILogger<ImageController> _logger;
         private readonly BloggingContext _context;
 
         private readonly ImageConversion _imageConversion;
 
-        public ImageController(ILogger<BlogPostController> logger, BloggingContext context)
+        public ImageController(ILogger<ImageController> logger, BloggingContext context)
         {
             _logger = logger;
             _context = context;
@@ -31,7 +33,7 @@ namespace BlogApi.Controllers
 
             if (post != null)
             {
-                return File(post.PreviewImage, post.PreviewImageType);
+                return File(post.PreviewImage, post.PreviewImageFormat);
             }
             else
             {
@@ -46,7 +48,7 @@ namespace BlogApi.Controllers
 
             if (post != null)
             {
-                return File(post.BackgroundImage, post.BackgroundImageType);
+                return File(post.BackgroundImage, post.BackgroundImageFormat);
             }
             else
             {
@@ -62,7 +64,7 @@ namespace BlogApi.Controllers
             {
                 throw new Exception(String.Format("No blog post found with id {0}", postId));
             }
-            return File(_imageConversion.ImageTransformation(post.PreviewImage, ImageGroup.Preview, post.PreviewImageType), post.PreviewImageType);
+            return File(_imageConversion.ImageTransformation(post.PreviewImage, ImageType.Preview), post.PreviewImageFormat);
         }
 
         [HttpGet]
@@ -73,9 +75,20 @@ namespace BlogApi.Controllers
             {
                 throw new Exception(String.Format("No blog post found with id {0}", postId));
             }
-            return File(_imageConversion.ImageTransformation(post.BackgroundImage, ImageGroup.Background, post.BackgroundImageType), post.BackgroundImageType);
+            return File(_imageConversion.ImageTransformation(post.BackgroundImage, ImageType.Background), post.BackgroundImageFormat);
         }
 
+        //TEST METHOD
+        [HttpPost]
+        public FileResult Modified(ImageInput image)
+        {
+            _logger.LogInformation("GOT HERE");
+            var convertedImage = Convert.FromBase64String(image.ImageData);
+            _logger.LogInformation("COMPARISON {} - {}", image.ImageType, PreviewImageType);
+            ImageType imageType = image.ImageType == PreviewImageType ? ImageType.Preview : ImageType.Background;
+            _logger.LogInformation("image Type is{}, {}", image.ImageType, imageType);
+            return File(_imageConversion.ImageTransformation(convertedImage, imageType), image.ImageFormat);
+        }
 
     }
 }

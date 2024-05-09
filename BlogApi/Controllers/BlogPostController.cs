@@ -46,16 +46,12 @@ namespace BlogApi.Controllers
             var post = new BlogPost();
             post.Content = postInput.Content;
             post.Title = postInput.Title;
-            // Saving modyfied images
-            post.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageGroup.Preview, postInput.PreviewImageType);
-            post.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageGroup.Background, postInput.BackgroundImageType);
-            // 
-            //post.PreviewImage = Convert.FromBase64String(postInput.PreviewImage);
-            //post.BackgroundImage = Convert.FromBase64String(postInput.BackgroundImage);
+            post.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageType.Preview);
+            post.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageType.Background);
             post.CreationDate = DateTime.Now;
             post.UserIdentity = GetCurrentUser();
-            post.BackgroundImageType = postInput.BackgroundImageType;
-            post.PreviewImageType = postInput.PreviewImageType;
+            post.BackgroundImageFormat = postInput.BackgroundImageFormat;
+            post.PreviewImageFormat = postInput.PreviewImageFormat;
 
 
             _context.Posts.Add(post);
@@ -78,13 +74,13 @@ namespace BlogApi.Controllers
             entity.Title = postInput.Title;
             if (postInput.BackgroundImage != null)
             {
-                entity.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageGroup.Background, postInput.BackgroundImageType);
-                entity.BackgroundImageType = postInput.BackgroundImageType;
+                entity.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageType.Background);
+                entity.BackgroundImageFormat = postInput.BackgroundImageFormat;
             }
             if (postInput.PreviewImage != null)
             {
-                entity.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageGroup.Preview, postInput.PreviewImageType);
-                entity.PreviewImageType = postInput.PreviewImageType;
+                entity.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageType.Preview);
+                entity.PreviewImageFormat = postInput.PreviewImageFormat;
             }
 
             _context.SaveChanges();

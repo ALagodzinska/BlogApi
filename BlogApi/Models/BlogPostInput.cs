@@ -16,9 +16,9 @@ namespace BlogApi.Models
         [Required]
         public string? PreviewImage { get; set; }
         [Required]
-        public string? BackgroundImageType { get; set; }
+        public string? BackgroundImageFormat { get; set; }
         [Required]
-        public string? PreviewImageType { get; set; }
+        public string? PreviewImageFormat { get; set; }
 
     }
 }

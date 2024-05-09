@@ -13,7 +13,7 @@ namespace BlogApi
         {
             _logger = logger;
         }
-        public byte[] ImageTransformation(byte[] imageFromPost, ImageGroup imageGroup, string imageType)
+        public byte[] ImageTransformation(byte[] imageFromPost, ImageType imageGroup)
         {
             if (imageFromPost == null)
             {
@@ -27,13 +27,13 @@ namespace BlogApi
                 image = Image.FromStream(readStream);
 
                 // Getting values for ratio resize -> width and height for specific image group
-                (int resizeHeight, int resizeWidth) = imageGroup == ImageGroup.Preview
+                (int resizeHeight, int resizeWidth) = imageGroup == ImageType.Preview
                     ? CalculatePreviewImageSize(image.Height, image.Width) : CalculateBackgroundImageSize(image.Height, image.Width);
                 _logger.LogInformation("Width - {}, Height -{} ", resizeWidth, resizeHeight);
                 // Creating resized image
                 resizedImage = ResizeImage(image, resizeWidth, resizeHeight);
                 // Image final size by image group type
-                (int finalImageWidth, int finalImageHeight) = imageGroup == ImageGroup.Preview
+                (int finalImageWidth, int finalImageHeight) = imageGroup == ImageType.Preview
                     ? (Constants.PreviewImageWidth, Constants.PreviewImageHeight)
                     : (Constants.BackgroundImageWidth, Constants.BackgroundImageHeight);
                 // Cropping image from center
@@ -42,8 +42,7 @@ namespace BlogApi
 
             using (MemoryStream writeStream = new())
             {
-                // TODO: Change here image format on the right one
-                croppedImage.Save(writeStream, ImageFormat.Jpeg);
+                croppedImage.Save(writeStream, image.RawFormat);
                 return writeStream.ToArray();
             }
         }

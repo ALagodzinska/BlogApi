@@ -4,12 +4,6 @@ using System.Reflection.Metadata;
 
 namespace BlogApi.Models
 {
-    //public enum ImageType
-    //{
-    //    JPEG,
-    //    PNG
-    //}
-
     public class BlogPost: ISoftDelete
     {
         public int BlogPostId { get; set; }
@@ -25,13 +19,13 @@ namespace BlogApi.Models
         [Required]
         public byte[]? BackgroundImage { get; set; }
         [Required]
-        public string? BackgroundImageType { get; set; }
+        public string? BackgroundImageFormat { get; set; }
 
         [Required]
         public byte[]? PreviewImage { get; set; }
 
         [Required]
-        public string? PreviewImageType { get; set; }
+        public string? PreviewImageFormat { get; set; }
 
         public IdentityUser UserIdentity { get; set; }
 

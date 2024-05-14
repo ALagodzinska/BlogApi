@@ -63,6 +63,7 @@ namespace BlogApi.Controllers
         [HttpPut]
         public IActionResult UpdatePost(BlogPostInput postInput, int postId)
         {
+            _logger.LogInformation("HERE WE ARE IN BACKEND -- {}", postId);
             var entity = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
             if (entity == null)
             {
@@ -72,12 +73,12 @@ namespace BlogApi.Controllers
 
             entity.Content = postInput.Content;
             entity.Title = postInput.Title;
-            if (postInput.BackgroundImage != null)
+            if (postInput.BackgroundImage != null && postInput.BackgroundImageFormat != null)
             {
                 entity.BackgroundImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.BackgroundImage), ImageType.Background);
                 entity.BackgroundImageFormat = postInput.BackgroundImageFormat;
             }
-            if (postInput.PreviewImage != null)
+            if (postInput.PreviewImage != null && postInput.PreviewImageFormat != null)
             {
                 entity.PreviewImage = _imageConversion.ImageTransformation(Convert.FromBase64String(postInput.PreviewImage), ImageType.Preview);
                 entity.PreviewImageFormat = postInput.PreviewImageFormat;

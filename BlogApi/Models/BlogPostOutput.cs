@@ -13,6 +13,8 @@ namespace BlogApi.Models
             CreationDate = entity.CreationDate;
             Title = entity.Title;
             Content = entity.Content;
+            PreviewImageFormat = entity.PreviewImageFormat;
+            BackgroundImageFormat = entity.BackgroundImageFormat;
             User = entity.UserIdentity != null ? entity.UserIdentity.UserName : DefaultUser;
         }
         
@@ -33,5 +35,7 @@ namespace BlogApi.Models
 
         public string? PreviewImage { get; set; }
         public string? User { get; set; }
+        public string? BackgroundImageFormat { get; set; }
+        public string? PreviewImageFormat { get; set; }
     }
 }

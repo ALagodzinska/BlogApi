@@ -42,7 +42,10 @@ builder.Services.AddIdentityCore<IdentityUser>()
        .AddEntityFrameworkStores<BloggingContext>()
        .AddApiEndpoints();
 
-builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme, o =>
+{
+    o.BearerTokenExpiration = TimeSpan.FromSeconds(3000);
+});
 builder.Services.AddAuthorizationBuilder();
 
 

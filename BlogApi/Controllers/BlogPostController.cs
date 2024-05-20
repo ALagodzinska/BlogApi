@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using static BlogApi.Constants;
 
@@ -18,6 +19,7 @@ namespace BlogApi.Controllers
         private readonly ImageConversion _imageConversion;
 
         private const int ResultsPerPage = 5;
+        private const int DeletedPostsResultsPerPage = 10;
 
         public BlogPostController(ILogger<BlogPostController> logger, BloggingContext context)
         {
@@ -97,7 +99,7 @@ namespace BlogApi.Controllers
         [HttpGet]
         public List<BlogPostOutput> GetPostsForPage(int page)
         {
-            int position = 5 * (page - 1);
+            int position = ResultsPerPage * (page - 1);
 
             var nextPage = _context.Posts
                 .Select(BlogPostOutput.createBlogPostSelector())
@@ -128,6 +130,53 @@ namespace BlogApi.Controllers
             _context.Remove(post);
             _context.SaveChanges();
             return postId;
+        }
+
+        [Authorize]
+        [HttpGet]
+        public double GetDeletedPostsPageCount()
+        {
+            int deletedPostsCount = _context.Posts.IgnoreQueryFilters()
+                .Where(post => post.IsDeleted == true)
+                .Count();
+            return Math.Ceiling( deletedPostsCount / (double)DeletedPostsResultsPerPage);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public List<DeletedBlogPostOutput> GetDeletedPostsPerPage(int page)
+        {
+            int position = DeletedPostsResultsPerPage * (page - 1);
+
+            var nextPage = _context.Posts
+                .IgnoreQueryFilters()
+                .Where(post => post.IsDeleted == true)
+                .Select(DeletedBlogPostOutput.createBlogPostSelector())
+                .OrderByDescending(b => b.CreationDate)
+                .Skip(position)
+                .Take(DeletedPostsResultsPerPage)
+                .ToList();
+            return nextPage;
+        }
+
+        [Authorize]
+        [HttpPut]
+        public IActionResult RestorePost(int postId)
+        {
+            var postToRestore = _context.Posts
+                .IgnoreQueryFilters()
+                .Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (postToRestore == null)
+            {
+                return NotFound();
+            }
+
+            postToRestore.IsDeleted = false;
+            postToRestore.DeletedAt = null;
+
+            _context.SaveChanges();
+            return Ok(postId);
         }
     }
 }

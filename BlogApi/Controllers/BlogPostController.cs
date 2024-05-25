@@ -54,8 +54,6 @@ namespace BlogApi.Controllers
             post.UserIdentity = GetCurrentUser();
             post.BackgroundImageFormat = postInput.BackgroundImageFormat;
             post.PreviewImageFormat = postInput.PreviewImageFormat;
-
-
             _context.Posts.Add(post);
             _context.SaveChanges();
             return post.BlogPostId;
@@ -102,6 +100,7 @@ namespace BlogApi.Controllers
             int position = ResultsPerPage * (page - 1);
 
             var nextPage = _context.Posts
+                .Include(post => post.UserIdentity)
                 .Select(BlogPostOutput.createBlogPostSelector())
                 .OrderByDescending(b => b.CreationDate)
                 .Skip(position)
@@ -115,6 +114,7 @@ namespace BlogApi.Controllers
         {
             return _context.Posts
                 .Where(post => post.BlogPostId == postId)
+                .Include(post => post.UserIdentity)
                 .Select(BlogPostOutput.createBlogPostSelector())
                 .FirstOrDefault();
         }

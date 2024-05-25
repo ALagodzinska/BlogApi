@@ -14,7 +14,7 @@ namespace BlogApi.Models
             Title = entity.Title;
             Content = entity.Content;
             PreviewImageFormat = entity.PreviewImageFormat;
-            BackgroundImageFormat = entity.BackgroundImageFormat;
+            BackgroundImageFormat = entity.BackgroundImageFormat;            
             User = entity.UserIdentity != null ? entity.UserIdentity.UserName : DefaultUser;
         }
         

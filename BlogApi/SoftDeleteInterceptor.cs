@@ -16,6 +16,7 @@
                 entry.State = EntityState.Modified;
                 delete.IsDeleted = true;
                 delete.DeletedAt = DateTimeOffset.UtcNow;
+                delete.IsFeatured = false;
             }
             return result;
         }

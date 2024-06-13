@@ -20,6 +20,7 @@ namespace BlogApi.Controllers
 
         private const int ResultsPerPage = 5;
         private const int DeletedPostsResultsPerPage = 10;
+        private const int LatestPostsResults = 4;
 
         public BlogPostController(ILogger<BlogPostController> logger, BloggingContext context)
         {
@@ -178,5 +179,55 @@ namespace BlogApi.Controllers
             _context.SaveChanges();
             return Ok(postId);
         }
+
+        [Authorize]
+        [HttpPut]
+        public IActionResult FeaturePost(int postId)
+        {
+            var postToFeature = _context.Posts
+                .Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (postToFeature == null)
+            {
+                return NotFound();
+            }
+
+            var oldFeaturedPosts = _context.Posts.Where(post => post.IsFeatured == true);
+            if(oldFeaturedPosts.Any()) {
+                foreach (var post in oldFeaturedPosts)
+                {
+                    post.IsFeatured = false;
+                }
+            }
+
+            postToFeature.IsFeatured = true;
+            _context.SaveChanges();
+            return Ok(postId);
+        }
+
+        [HttpGet]
+        public BlogPostOutput? GetFeaturedPost()
+        {
+            return _context.Posts
+                .Where(post => post.IsFeatured == true)
+                .Include(post => post.UserIdentity)
+                .Select(BlogPostOutput.createBlogPostSelector())
+                .FirstOrDefault();
+        }
+
+        [HttpGet]
+        public List<BlogPostOutput> GetLatestPosts()
+        {
+
+            var latestPosts = _context.Posts
+                .Where(post => post.IsFeatured == false)
+                .Include(post => post.UserIdentity)
+                .Select(BlogPostOutput.createBlogPostSelector())
+                .OrderByDescending(b => b.CreationDate)
+                .Take(LatestPostsResults)
+                .ToList();
+            return latestPosts;
+        }
+
     }
 }

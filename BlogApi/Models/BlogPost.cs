@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 
 namespace BlogApi.Models
 {
-    public class BlogPost
+    public class BlogPost: ISoftDelete
     {
         public int BlogPostId { get; set; }
 
@@ -17,11 +18,18 @@ namespace BlogApi.Models
 
         [Required]
         public byte[]? BackgroundImage { get; set; }
+        [Required]
+        public string? BackgroundImageFormat { get; set; }
 
         [Required]
         public byte[]? PreviewImage { get; set; }
 
         [Required]
-        public string? User { get; set; }
+        public string? PreviewImageFormat { get; set; }
+
+        public IdentityUser UserIdentity { get; set; }
+
+        public bool IsDeleted { get; set; }
+        public DateTimeOffset? DeletedAt { get; set; }
     }
 }

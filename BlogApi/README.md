@@ -9,3 +9,8 @@
 API for more than JSON
 	- is called Web Api 2
 	- uses package using System.Web.Http;
+
+System.Drawing package
+	- to use system.drawing package ->
+	1. Go to Manage NuGet packages 
+	2. Download System.Drawing.Common

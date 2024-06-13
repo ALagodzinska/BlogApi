@@ -1,4 +1,5 @@
 using BlogApi;
+using BlogApi.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
@@ -20,14 +21,33 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.Http,
         Scheme = JwtBearerDefaults.AuthenticationScheme
     });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 builder.Services.AddDbContext<BloggingContext>();
 
 builder.Services.AddIdentityCore<IdentityUser>()
        .AddEntityFrameworkStores<BloggingContext>()
        .AddApiEndpoints();
-builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme, o =>
+{
+    o.BearerTokenExpiration = TimeSpan.FromSeconds(3000);
+});
 builder.Services.AddAuthorizationBuilder();
+
 
 
 var app = builder.Build();

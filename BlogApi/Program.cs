@@ -3,6 +3,7 @@ using BlogApi.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
+using BlogApi.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +49,8 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 });
 builder.Services.AddAuthorizationBuilder();
 
-
+builder.Services.Configure<AiSettings>(
+    builder.Configuration.GetSection("ApiKeys"));
 
 var app = builder.Build();
 

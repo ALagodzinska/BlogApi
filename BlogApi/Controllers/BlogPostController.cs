@@ -192,7 +192,7 @@ namespace BlogApi.Controllers
                 return NotFound();
             }
 
-            var oldFeaturedPosts = _context.Posts.Where(post => post.IsFeatured == true);
+            var oldFeaturedPosts = _context.Posts.Where(post => post.IsFeatured);
             if(oldFeaturedPosts.Any()) {
                 foreach (var post in oldFeaturedPosts)
                 {
@@ -219,14 +219,13 @@ namespace BlogApi.Controllers
         public List<BlogPostOutput> GetLatestPosts()
         {
 
-            var latestPosts = _context.Posts
+            return _context.Posts
                 .Where(post => post.IsFeatured == false)
                 .Include(post => post.UserIdentity)
                 .Select(BlogPostOutput.createBlogPostSelector())
                 .OrderByDescending(b => b.CreationDate)
                 .Take(LatestPostsResults)
                 .ToList();
-            return latestPosts;
         }
 
     }

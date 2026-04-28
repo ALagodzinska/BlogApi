@@ -50,7 +50,9 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 builder.Services.AddAuthorizationBuilder();
 
 builder.Services.Configure<AiSettings>(
-    builder.Configuration.GetSection("ApiKeys"));
+    builder.Configuration.GetSection("Gemini"));
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
-﻿using BlogApi.Configuration;
+﻿using Azure.Core;
+using BlogApi.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,18 +18,6 @@ namespace BlogApi.Controllers
         {
             _settings = aiSettings.Value;
             _httpClient = httpClient;
-        }
-
-        [HttpGet]
-        public IActionResult TestApiKey()
-        {
-            // Do NOT return the real key in production.
-            if (string.IsNullOrEmpty(_settings.ApiKey))
-            {
-                return BadRequest("Gemini API key is missing.");
-            }
-
-            return Ok("Gemini API key is loaded.");
         }
 
         [HttpGet]
@@ -61,6 +50,8 @@ namespace BlogApi.Controllers
 
             Guidelines for suggestions:
             - Focus on clarity, structure, readability, and usefulness
+            - Be specific about what needs improvement
+            - Refer to exact paragraphs, sentences, or phrases
             - The "issue" must be short (max 7 words)
             - Each suggestion must be no longer than two sentences
             - Use simple, direct language
@@ -71,10 +62,10 @@ namespace BlogApi.Controllers
             - Mention a paragraph only if clearly relevant            
 
             IMPORTANT:
-            - Return ONLY valid JSON
+            - Return ONLY valid JSON!
             - Do NOT include extra text, explanations, or markdown formatting
             - Do NOT wrap the response in markdown
-            - Do NOT use ```json
+            - Do NOT use ```json, return raw JSON
             - Do NOT include extra text
             - Follow this exact JSON structure:
 
@@ -150,6 +141,109 @@ namespace BlogApi.Controllers
                 .GetString();
 
             return Ok(feedback);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerateTitles(string? title, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return BadRequest("Content is required.");
+
+            var baseTitle = string.IsNullOrWhiteSpace(title)
+            ? "No title provided"
+            : title;
+
+            var prompt = $$"""
+            You are a writing assistant helping improve blog titles.
+
+            Based on the blog content and the current title (if one is present), generate 5 alternative title suggestions.
+
+            Requirements:
+            - Each title must be clearly different in wording and structure
+            - Avoid repeating the same phrases or patterns
+            - Keep titles short (max 8 words)
+            - Keep them natural and easy to read
+            - Reflect the main idea of the content
+
+            Return only a list of titles.          
+
+            IMPORTANT:
+            - Return ONLY valid JSON!
+            - Do NOT include extra text, explanations, or markdown formatting
+            - Do NOT wrap the response in markdown
+            - Do NOT use ```json, return raw JSON
+            - Do NOT include extra text
+            - Follow this exact JSON structure:
+
+            {
+              titles: ["Title one", "Title two"]
+            }
+
+            Existing title: 
+            {{baseTitle}}
+
+            Content:
+            {{content}}
+            """;
+
+            // Gemini API format
+            var requestBody = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new { text = prompt }
+                        }
+                    }
+                }
+            };
+
+            var url =
+             $"https://generativelanguage.googleapis.com/v1beta/models/{_settings.Model}:generateContent";
+
+            HttpResponseMessage? response = null;
+
+            for (int i = 0; i < 3; i++)
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Headers.Add("x-goog-api-key", _settings.ApiKey);
+                request.Content = JsonContent.Create(requestBody);
+
+                response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                    break;
+
+                if ((int)response.StatusCode == 503 || (int)response.StatusCode == 429)
+                    await Task.Delay(1000 * (i + 1));
+                else
+                    break;
+            }
+
+            if (response == null)
+            {
+                return StatusCode(500, "No response from AI service.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return StatusCode((int)response.StatusCode, error);
+            }
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+
+            var titles = json
+                .GetProperty("candidates")[0]
+                .GetProperty("content")
+                .GetProperty("parts")[0]
+                .GetProperty("text")
+                .GetString();
+
+            return Ok(titles);
         }
     }
 }

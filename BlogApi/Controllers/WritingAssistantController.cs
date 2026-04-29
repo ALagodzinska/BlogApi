@@ -48,6 +48,8 @@ namespace BlogApi.Controllers
             - Sound like a helpful mentor, not a strict critic
             - Be honest, but never harsh or overly formal
             - Keep the tone motivating and constructive
+            - If there are formatting issues, describe them in plain language (for example: awkward spacing, abrupt line breaks, or paragraphs that feel too long or too short).
+            - Do not reference or use any technical or markup terms.
 
             Requirements:
             1. Write a concise feedback summary, maximum 100 words.
@@ -66,7 +68,7 @@ namespace BlogApi.Controllers
             - Avoid generic advice
             - Avoid explaining obvious benefits (e.g., "this improves readability")
             - Do not repeat the same type of suggestion
-            - Mention a paragraph only if clearly relevant
+            - Mention a paragraph only if clearly relevant            
 
             IMPORTANT:
             - Return ONLY valid JSON

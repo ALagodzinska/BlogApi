@@ -115,7 +115,7 @@ namespace BlogApi.Controllers
                     break;
 
                 if ((int)response.StatusCode == 503 || (int)response.StatusCode == 429)
-                    await Task.Delay(1000 * (i + 1));
+                    await Task.Delay(3000 * (i + 1));
                 else
                     break;
             }

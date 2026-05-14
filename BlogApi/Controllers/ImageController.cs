@@ -27,43 +27,41 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
-        public FileResult PreviewImage(int postId)
+        public ActionResult PreviewImage(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
 
-            if (post != null)
+            if (post == null)
             {
-                return File(post.PreviewImage, post.PreviewImageFormat);
+                return NotFound($"No blog post found with id {postId}");
             }
-            else
-            {
-                throw new Exception(String.Format("No blog post found with id {0}", postId));
-            }
+
+            return File(post.PreviewImage, post.PreviewImageFormat);
         }
 
         [HttpGet]
-        public FileResult BackgroundImage(int postId)
+        public ActionResult BackgroundImage(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
 
-            if (post != null)
+            if (post == null)
             {
-                return File(post.BackgroundImage, post.BackgroundImageFormat);
+                return NotFound($"No blog post found with id {postId}");
             }
-            else
-            {
-                throw new Exception(String.Format("No blog post found with id {0}", postId));
-            }
+            
+            return File(post.BackgroundImage, post.BackgroundImageFormat);
         }
 
         [HttpGet]
         public ActionResult PreviewImageConversion(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
             if (post == null)
             {
-                throw new Exception(String.Format("No blog post found with id {0}", postId));
+                return NotFound($"No blog post found with id {postId}");
             }
+
             return File(_imageConversion.ImageTransformation(post.PreviewImage, ImageType.Preview), post.PreviewImageFormat);
         }
 
@@ -71,22 +69,36 @@ namespace BlogApi.Controllers
         public ActionResult BackgroundImageConversion(int postId)
         {
             var post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
             if (post == null)
             {
-                throw new Exception(String.Format("No blog post found with id {0}", postId));
+                return NotFound($"No blog post found with id {postId}");
             }
+
             return File(_imageConversion.ImageTransformation(post.BackgroundImage, ImageType.Background), post.BackgroundImageFormat);
         }
 
-        //TEST METHOD
         [HttpPost]
-        public FileResult Modified(ImageInput image)
+        public ActionResult Modified(ImageInput image)
         {
-            _logger.LogInformation("GOT HERE");
-            var convertedImage = Convert.FromBase64String(image.ImageData);
-            _logger.LogInformation("COMPARISON {} - {}", image.ImageType, PreviewImageType);
+            if (image == null || string.IsNullOrWhiteSpace(image.ImageData))
+            {
+                return BadRequest("Image data is required.");
+            }
+
+            byte[] convertedImage;
+
+            try
+            {
+                convertedImage = Convert.FromBase64String(image.ImageData);
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Invalid base64 image data.");
+            }
+
             ImageType imageType = image.ImageType == PreviewImageType ? ImageType.Preview : ImageType.Background;
-            _logger.LogInformation("image Type is{}, {}", image.ImageType, imageType);
+
             return File(_imageConversion.ImageTransformation(convertedImage, imageType), image.ImageFormat);
         }
 

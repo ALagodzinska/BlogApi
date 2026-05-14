@@ -64,13 +64,11 @@ namespace BlogApi.Controllers
         [HttpPut]
         public IActionResult UpdatePost(BlogPostInput postInput, int postId)
         {
-            _logger.LogInformation("HERE WE ARE IN BACKEND -- {}", postId);
             var entity = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
             if (entity == null)
             {
                 return NotFound();
             }
-
 
             entity.Content = postInput.Content;
             entity.Title = postInput.Title;

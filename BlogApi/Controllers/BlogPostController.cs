@@ -55,6 +55,7 @@ namespace BlogApi.Controllers
             post.UserIdentity = GetCurrentUser();
             post.BackgroundImageFormat = postInput.BackgroundImageFormat;
             post.PreviewImageFormat = postInput.PreviewImageFormat;
+            post.Likes = 0;
             _context.Posts.Add(post);
             _context.SaveChanges();
             return post.BlogPostId;
@@ -224,6 +225,23 @@ namespace BlogApi.Controllers
                 .OrderByDescending(b => b.CreationDate)
                 .Take(LatestPostsResults)
                 .ToList();
+        }
+
+        [HttpPut]
+        public ActionResult<int> IncrementLike(int postId)
+        {
+            BlogPost? blogPost = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (blogPost == null)
+            {
+                return BadRequest("Invalid Post ID");
+            }
+
+            blogPost.Likes = blogPost.Likes + 1;
+
+            _context.SaveChanges();
+
+            return Ok(blogPost.Likes);
         }
 
     }

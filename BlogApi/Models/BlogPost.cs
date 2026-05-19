@@ -37,5 +37,7 @@ namespace BlogApi.Models
         public bool IsFeatured { get; set; }
 
         public int Likes { get; set; }
+
+        public int Views { get; set; }
     }
 }

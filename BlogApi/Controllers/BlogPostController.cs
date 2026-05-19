@@ -56,6 +56,7 @@ namespace BlogApi.Controllers
             post.BackgroundImageFormat = postInput.BackgroundImageFormat;
             post.PreviewImageFormat = postInput.PreviewImageFormat;
             post.Likes = 0;
+            post.Views = 0;
             _context.Posts.Add(post);
             _context.SaveChanges();
             return post.BlogPostId;
@@ -244,5 +245,20 @@ namespace BlogApi.Controllers
             return Ok(blogPost.Likes);
         }
 
+        [HttpPut]
+        public ActionResult<int> IncrementViewCount(int postId)
+        {
+            BlogPost? post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (post == null)
+            {
+                return BadRequest("Invalid Post ID");
+            }
+
+            post.Views = post.Views + 1;
+
+            _context.SaveChanges();
+            return Ok(post.Views);
+        }
     }
 }

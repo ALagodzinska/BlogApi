@@ -55,6 +55,8 @@ namespace BlogApi.Controllers
             post.UserIdentity = GetCurrentUser();
             post.BackgroundImageFormat = postInput.BackgroundImageFormat;
             post.PreviewImageFormat = postInput.PreviewImageFormat;
+            post.Likes = 0;
+            post.Views = 0;
             _context.Posts.Add(post);
             _context.SaveChanges();
             return post.BlogPostId;
@@ -64,13 +66,11 @@ namespace BlogApi.Controllers
         [HttpPut]
         public IActionResult UpdatePost(BlogPostInput postInput, int postId)
         {
-            _logger.LogInformation("HERE WE ARE IN BACKEND -- {}", postId);
             var entity = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
             if (entity == null)
             {
                 return NotFound();
             }
-
 
             entity.Content = postInput.Content;
             entity.Title = postInput.Title;
@@ -228,5 +228,37 @@ namespace BlogApi.Controllers
                 .ToList();
         }
 
+        [HttpPut]
+        public ActionResult<int> IncrementLike(int postId)
+        {
+            BlogPost? blogPost = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (blogPost == null)
+            {
+                return BadRequest("Invalid Post ID");
+            }
+
+            blogPost.Likes = blogPost.Likes + 1;
+
+            _context.SaveChanges();
+
+            return Ok(blogPost.Likes);
+        }
+
+        [HttpPut]
+        public ActionResult<int> IncrementViewCount(int postId)
+        {
+            BlogPost? post = _context.Posts.Where(post => post.BlogPostId == postId).FirstOrDefault();
+
+            if (post == null)
+            {
+                return BadRequest("Invalid Post ID");
+            }
+
+            post.Views = post.Views + 1;
+
+            _context.SaveChanges();
+            return Ok(post.Views);
+        }
     }
 }

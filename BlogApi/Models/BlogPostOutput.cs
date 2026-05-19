@@ -17,6 +17,8 @@ namespace BlogApi.Models
             BackgroundImageFormat = entity.BackgroundImageFormat;            
             User = entity.UserIdentity != null ? entity.UserIdentity.UserName : DefaultUser;
             IsFeatured = entity.IsFeatured;
+            Likes = entity.Likes;
+            Views = entity.Views;
         }
         
         static public Func<BlogPost, BlogPostOutput> createBlogPostSelector()
@@ -39,5 +41,9 @@ namespace BlogApi.Models
         public string? BackgroundImageFormat { get; set; }
         public string? PreviewImageFormat { get; set; }
         public bool? IsFeatured { get; set; }
+
+        public int Likes { get; set; }
+
+        public int Views { get; set; }
     }
 }

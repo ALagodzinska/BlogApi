@@ -35,5 +35,9 @@ namespace BlogApi.Models
 
         [DefaultValue(false)]
         public bool IsFeatured { get; set; }
+
+        public int Likes { get; set; }
+
+        public int Views { get; set; }
     }
 }

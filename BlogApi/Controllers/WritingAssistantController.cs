@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using BlogApi.Configuration;
+using BlogApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -20,8 +21,8 @@ namespace BlogApi.Controllers
             _httpClient = httpClient;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetFeedback(string content)
+        [HttpPost]
+        public async Task<IActionResult> GetFeedback([FromBody] string content)
         {
             if (string.IsNullOrWhiteSpace(content))
                 return BadRequest("Content is required.");
@@ -143,15 +144,15 @@ namespace BlogApi.Controllers
             return Ok(feedback);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GenerateTitles(string? title, string content)
+        [HttpPost]
+        public async Task<IActionResult> GenerateTitles([FromBody] GenerateTitlesRequest requestData)
         {
-            if (string.IsNullOrWhiteSpace(content))
+            if (string.IsNullOrWhiteSpace(requestData.Content))
                 return BadRequest("Content is required.");
 
-            var baseTitle = string.IsNullOrWhiteSpace(title)
+            var baseTitle = string.IsNullOrWhiteSpace(requestData.Title)
             ? "No title provided"
-            : title;
+            : requestData.Title;
 
             var prompt = $$"""
             You are a writing assistant helping improve blog titles.
@@ -183,7 +184,7 @@ namespace BlogApi.Controllers
             {{baseTitle}}
 
             Content:
-            {{content}}
+            {{requestData.Content}}
             """;
 
             // Gemini API format
